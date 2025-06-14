@@ -1,0 +1,45 @@
+{
+    "kind": "calendar#event",
+    "etag": "'3499175436193054'",
+    "id": "1ffh8dremb4vvmgf0sebqg8k93",
+    "status": "confirmed",
+    "htmlLink": "https://www.google.com/calendar/event?eid=MWZmaDhkcmVtYjR2dm1nZjBzZWJxZzhrOTMgMTJiNGMxYzA1ZGRmYTkyZGEzNzczMTUxYjVhM2QyNzEyMTM4YzQxMDE2MmNmMGRjYWIzYjRkMGY4NGVjZmU2N0Bn",
+    "created": "2025-06-10T20:34:50.000Z",
+    "updated": "2025-06-10T20:35:18.096Z",
+    "summary": "Job 2",
+    "creator": {
+        "email": "hlunel.hl@gmail.com"
+    },
+    "organizer": {
+        "email": "12b4c1c05ddfa92da3773151b5a3d2712138c410162cf0dcab3b4d0f84ecfe67@group.calendar.google.com",
+        "displayName": "Jobs",
+        "self": true
+    },
+    "start": {
+        "dateTime": "2025-06-10T10:00:00+01:00",
+        "timeZone": "Europe/London"
+    },
+    "end": {
+        "dateTime": "2025-06-10T10:30:00+01:00",
+        "timeZone": "Europe/London"
+    },
+    "transparency": "transparent",
+    "iCalUID": "1ffh8dremb4vvmgf0sebqg8k93@google.com",
+    "sequence": 1,
+    "attendees": [
+        {
+            "email": "08c511fb02bd9027b21371ec966baf8295a028e5881f9811aa84daef53de0e99@group.calendar.google.com",
+            "displayName": "Machine 2",
+            "responseStatus": "needsAction"
+        },
+        {
+            "email": "eb42278c2e8d0397270e285dd6f175e79af793452ed6a921ecac6361b0dd8f77@group.calendar.google.com",
+            "displayName": "Employee 2",
+            "responseStatus": "needsAction"
+        }
+    ],
+    "reminders": {
+        "useDefault": true
+    },
+    "eventType": "default"
+}
