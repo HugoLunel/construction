@@ -32,7 +32,7 @@ class CalendarEvent:
     title: str
     start: datetime
     end: datetime
-    attendees: list[str]
+    attendees: list[dict]
     location: str
     html_link: str
     created: datetime
