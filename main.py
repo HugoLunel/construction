@@ -1,93 +1,88 @@
 from collections import defaultdict
-from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
-
-SCOPES = [
-    "https://www.googleapis.com/auth/calendar",
-    "https://www.googleapis.com/auth/calendar.events",
-]
-SERVICE_ACCOUNT_FILE = "service_account.json"
-CALENDAR_ID = "12b4c1c05ddfa92da3773151b5a3d2712138c410162cf0dcab3b4d0f84ecfe67@group.calendar.google.com"
-
-credentials = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=SCOPES
-)
-
-service = build("calendar", "v3", credentials=credentials)
-
-def get_date(data: dict, key: str) -> datetime:
-    date_dict = data.get(key, {})
-    if not date_dict:
-        raise ValueError(f"Missing date key: {key} in data: {data}")
-    date_value = date_dict.get("dateTime") or date_dict.get("date")
-    if not date_value:
-        raise ValueError(f"Missing date value for key: {key} in data: {data}")
-    return datetime.fromisoformat(date_value)
+from gcal import CALENDAR_ID, CalendarEvent, get_calendar_events
+from spreadsheet import SpreadsheetEntry, get_submitions
+from dataclasses import dataclass
+from typing import Optional
 
 
-@dataclass
-class CalendarEvent:
-    title: str
-    start: datetime
-    end: datetime
-    attendees: list[dict]
-    location: str
-    html_link: str
-    created: datetime
-    updated: datetime
-    duration_hours: float
-
-    @classmethod
-    def from_dict(cls, data: dict) -> "CalendarEvent":
-        start = get_date(data, "start")
-        end = get_date(data, "end")
-        return cls(
-            title=data.get("summary", ""),
-            start=start,
-            end=end,
-            attendees=data.get("attendees", []),
-            location=data.get("location", ""),
-            html_link=data.get("htmlLink", ""),
-            created=datetime.fromisoformat(data.get("created", "").replace("Z", "+00:00")),
-            updated=datetime.fromisoformat(data.get("updated", "").replace("Z", "+00:00")),
-            duration_hours=(end - start).total_seconds() / 3600,
-        )
-
-
-def get_calendar_events(calendar_id: str, time_min: str, time_max: str) -> list[CalendarEvent]:
-    """Retrieve events from a specific calendar within a time range."""
-    events_result = (
-        service.events()
-        .list(
-            calendarId=calendar_id,
-            timeMin=time_min,
-            timeMax=time_max,
-            singleEvents=True,
-            orderBy="startTime",
-        )
-        .execute()
-    )
-    return [CalendarEvent.from_dict(event) for event in events_result.get("items", [])]
-
-
-# Get events from the past 15 days
 events = get_calendar_events(
     calendar_id=CALENDAR_ID,
     time_min=(datetime.now(tz=timezone.utc) - timedelta(days=15)).isoformat(),
     time_max=(datetime.now(tz=timezone.utc) + timedelta(days=15)).isoformat(),
 )
 
-employee_times = defaultdict(float)
+# events_by_employee = defaultdict(CalendarEvent)
+# for event in events:
+#     for attendee in event.attendees:
+#         email = attendee.get("email")
+#         if email:
+#             events_by_employee[email] = event
 
-for event in events:
 
-    for attendee in event.attendees:
-        name = attendee.get("displayName")
-        if name:
-            employee_times[name] += event.duration_hours
+submissions = get_submitions()
+# submissions_by_employee = defaultdict(SpreadsheetEntry)
+# for submission in submissions:
+#     email = submission.submitter
+#     if email:
+#         submissions_by_employee[email] = submission
 
-# Print total working time per employee
-for name, hours in employee_times.items():
-    print(f"{name}: {hours:.2f} hours")
+
+@dataclass
+class EventSubmissionEntry:
+    event: Optional[CalendarEvent] = None
+    submission: Optional[SpreadsheetEntry] = None
+
+
+def create_entry_key(
+    email: str, start: datetime, end: datetime
+) -> tuple[str, float, float]:
+    return (email, start.timestamp(), end.timestamp)
+
+
+def find_unmatched_events_and_submissions(
+    events: list[CalendarEvent], submissions: list[SpreadsheetEntry]
+) -> tuple[dict[str, list[CalendarEvent]], dict[str, list[SpreadsheetEntry]]]:
+    # key: (email, start, end) -> EventSubmissionEntry
+    combined_map = defaultdict(EventSubmissionEntry)
+
+    for event in events:
+        for attendee in event.attendees:
+            email = attendee.get("email")
+            if email:
+                key = create_entry_key(email, event.start, event.end)
+                combined_map[key].event = event
+
+    for submission in submissions:
+        email = submission.submitter
+        if email:
+            key = create_entry_key(email, submission.start, submission.end)
+            combined_map[key].submission = submission
+
+    unmatched_events_by_employee = defaultdict(list[CalendarEvent])
+    unmatched_submissions_by_employee = defaultdict(list[SpreadsheetEntry])
+    for key, entry in combined_map.items():
+        email, _start, _end = key
+        if entry.event and not entry.submission:
+            unmatched_events_by_employee[email].append(entry.event)
+        if entry.submission and not entry.event:
+            unmatched_submissions_by_employee[email].append(entry.submission)
+
+    return unmatched_events_by_employee, unmatched_submissions_by_employee
+
+
+unmatched_events_by_employee, unmatched_submissions_by_employee = (
+    find_unmatched_events_and_submissions(events, submissions)
+)
+
+print("Unmatched Events by Employee:")
+for email, events in unmatched_events_by_employee.items():
+    print(f"{email}: {len(events)} unmatched events")
+    for event in events:
+        print(f"  - {event.title} ({event.start} to {event.end})")
+
+print("\nUnmatched Submissions by Employee:")
+for email, submissions in unmatched_submissions_by_employee.items():
+    print(f"{email}: {len(submissions)} unmatched submissions")
+    for submission in submissions:
+        print(f"  - {submission.title} ({submission.start} to {submission.end})")

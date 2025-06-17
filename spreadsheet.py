@@ -11,7 +11,7 @@ def get_date(data: list, index: int, job_date: str) -> datetime:
 
 
 @dataclass
-class SpreedsheetEntry:
+class SpreadsheetEntry:
     title: str
     start: datetime
     end: datetime
@@ -19,7 +19,7 @@ class SpreedsheetEntry:
     submitter: str
     submitted_at: datetime
     @classmethod
-    def from_row(cls, data: list) -> Optional["SpreedsheetEntry"]:
+    def from_row(cls, data: list) -> Optional["SpreadsheetEntry"]:
         try:
             job_date = data[1]
             start = get_date(data, 3, job_date)
@@ -45,18 +45,19 @@ SERVICE_ACCOUNT_FILE = "service_account.json"
 SPREADSHEET_ID = "1xqBjVJxNfW_U6Bg5sbtc6PlALxdQKt1oSiUMBZ_xPRA"
 RANGE = "Form responses 1!A2:F"
 
-credentials = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=SCOPES
-)
+def get_submitions() -> list[SpreadsheetEntry]:
+    """Fetches submissions from the Google Sheets API."""
+    credentials = service_account.Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE, scopes=SCOPES
+    )
 
-service = build("sheets", "v4", credentials=credentials)
+    service = build("sheets", "v4", credentials=credentials)
 
-sheet = service.spreadsheets()
-result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=RANGE).execute()
+    sheet = service.spreadsheets()
+    result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=RANGE).execute()
 
-entries = [
-    SpreedsheetEntry.from_row(row)
-    for row in result.get("values", [])
-    if SpreedsheetEntry.from_row(row) is not None
-]
-print("Spreadsheet values:", entries)
+    return [
+        SpreadsheetEntry.from_row(row)
+        for row in result.get("values", [])
+        if SpreadsheetEntry.from_row(row) is not None
+    ]
