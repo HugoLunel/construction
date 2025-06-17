@@ -49,6 +49,14 @@ class CalendarEvent:
             duration_hours=(end - start).total_seconds() / 3600,
         )
 
+    @classmethod
+    def to_spreadsheet_row(cls, event: "CalendarEvent") -> list:
+        return [
+            event.title,
+            event.start.isoformat(),
+            event.end.isoformat(),
+        ]
+
 
 def get_calendar_events(calendar_id: str, time_min: str, time_max: str) -> list[CalendarEvent]:
     credentials = service_account.Credentials.from_service_account_file(
