@@ -53,6 +53,7 @@ def combine_calendar_and_spreadsheet(
 
     for event in events:
         for attendee in event.attendees:
+            # responseStatus = attendee.get("responseStatus") // TODO: might need to use this to know if an employee accepted the work
             # email = attendee.get("email") // TODO: might need to use email later on to match with email submissions
             email = attendee.get("displayName")
             if email and "Machine" not in attendee.get("displayName"):
