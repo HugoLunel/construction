@@ -7,7 +7,7 @@ export class ConstructionInfraStack extends cdk.Stack {
         super(scope, id, props);
 
         new lambda.DockerImageFunction(this, 'ConstructionLambda', {
-            code: lambda.DockerImageCode.fromImageAsset('../lambda/src'),
+            code: lambda.DockerImageCode.fromImageAsset('../lambda/app'),
         });
     }
 }
