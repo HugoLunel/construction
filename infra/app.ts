@@ -2,6 +2,7 @@ import { App, Stack, StackProps, Duration } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { DockerImageFunction, Architecture, DockerImageCode, ApplicationLogLevel, SystemLogLevel, LogFormat } from 'aws-cdk-lib/aws-lambda';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
+
 export class ConstructionInfraStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props);
