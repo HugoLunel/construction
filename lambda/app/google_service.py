@@ -1,3 +1,4 @@
+import os
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 import boto3
@@ -13,7 +14,10 @@ SERVICE_ACCOUNT_SECRET_KEY = "construction/google-service-account"
 def get_credentials():
     print("Loading Google service account credentials...")
     session = boto3.session.Session()
-    client = session.client(service_name="secretsmanager")
+    client = session.client(
+        service_name="secretsmanager", 
+        region_name=os.environ["AWS_REGION"],
+    )
     import json
     secret = client.get_secret_value(SecretId=SERVICE_ACCOUNT_SECRET_KEY)[
         "SecretString"

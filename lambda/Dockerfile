@@ -25,12 +25,14 @@ RUN --mount=from=uv,source=/uv,target=/bin/uv \
     uv pip install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
 
 FROM public.ecr.aws/lambda/python:3.10
+WORKDIR "${LAMBDA_TASK_ROOT}"
 
 # Copy the runtime dependencies from the builder stage.
-COPY --from=builder ${LAMBDA_TASK_ROOT} ${LAMBDA_TASK_ROOT}
+COPY --from=builder "${LAMBDA_TASK_ROOT}" .
 
 # Copy the application code.
-COPY ./app ${LAMBDA_TASK_ROOT}/app
+COPY ./app .
 
+RUN ls -ali
 # Set the AWS Lambda handler.
-CMD ["app.main.handler"]
+CMD ["main.handler"]

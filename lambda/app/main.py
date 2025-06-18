@@ -74,6 +74,7 @@ def find_discrepancies(
 
 
 def handler(event, context):
+    print("Starting handler...")
     events = get_calendar_events(
         calendar_id=CALENDAR_ID,
         time_min=(datetime.now(tz=timezone.utc) - timedelta(days=15)).isoformat(),
