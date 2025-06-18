@@ -3,15 +3,6 @@
   "watch": {
     "include": [
       "**"
-    ],
-    "exclude": [
-      "README.md",
-      "cdk*.json",
-      "requirements*.txt",
-      "source.bat",
-      "**/__init__.py",
-      "**/__pycache__",
-      "tests"
     ]
   },
   "context": {

@@ -2,4 +2,7 @@ credentials.json
 token.json
 service_account.json
 node_modules/
-cdk.out
+cdk.out/
+__pycache__/
+package/
+requirements.txt

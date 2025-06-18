@@ -1,19 +1,25 @@
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+import boto3
 
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/calendar",
     "https://www.googleapis.com/auth/calendar.events",
 ]
-SERVICE_ACCOUNT_FILE = "service_account.json"
+SERVICE_ACCOUNT_SECRET_KEY = "construction/google-service-account"
 
 
 def get_credentials():
     print("Loading Google service account credentials...")
-    return service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE, scopes=SCOPES
-    )
+    session = boto3.session.Session()
+    client = session.client(service_name="secretsmanager")
+    import json
+    secret = client.get_secret_value(SecretId=SERVICE_ACCOUNT_SECRET_KEY)[
+        "SecretString"
+    ]
+    secret_dict = json.loads(secret)
+    return service_account.Credentials.from_service_account_info(secret_dict, scopes=SCOPES)
 
 
 CREDENTIALS = get_credentials()

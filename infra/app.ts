@@ -6,10 +6,8 @@ export class ConstructionInfraStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
 
-        new lambda.Function(this, 'ConstructionLambda', {
-            runtime: lambda.Runtime.PYTHON_3_10,
-            handler: 'main.handler',
-            code: lambda.Code.fromAsset('../lambda'),
+        new lambda.DockerImageFunction(this, 'ConstructionLambda', {
+            code: lambda.DockerImageCode.fromImageAsset('../lambda/src'),
         });
     }
 }
