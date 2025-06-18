@@ -1,0 +1,17 @@
+{
+    "name": "infra",
+    "version": "1.0.0",
+    "description": "A basic AWS CDK application",
+    "type": "module",
+    "scripts": {
+        "build": "tsc --build"
+    },
+    "devDependencies": {
+        "aws-cdk": "^2.0.0",
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "aws-cdk-lib": "^2.0.0",
+        "constructs": "^10.0.0"
+    }
+}

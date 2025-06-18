@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
+
 import pytz
+
+from google_service import SHEET_SERVICE
 
 DATE_FORMAT = "%d/%m/%Y %H:%M:%S"
 
@@ -54,25 +55,14 @@ class SpreadsheetEntry:
         ]
 
 
-SCOPES = [
-    "https://www.googleapis.com/auth/spreadsheets",
-]
-SERVICE_ACCOUNT_FILE = "service_account.json"
 SPREADSHEET_ID = "1xqBjVJxNfW_U6Bg5sbtc6PlALxdQKt1oSiUMBZ_xPRA"
 READ_RANGE = "Form responses 1!A2:F"
 
 
 def get_submitions() -> list[SpreadsheetEntry]:
     """Fetches submissions from the Google Sheets API."""
-    credentials = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE, scopes=SCOPES
-    )
-
-    service = build("sheets", "v4", credentials=credentials)
-
-    sheet = service.spreadsheets()
     result = (
-        sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=READ_RANGE).execute()
+        SHEET_SERVICE.values().get(spreadsheetId=SPREADSHEET_ID, range=READ_RANGE).execute()
     )
 
     return [
@@ -84,12 +74,7 @@ def get_submitions() -> list[SpreadsheetEntry]:
 
 def clear_sheet(sheet_name: str) -> None:
     print(f"Clearing sheet: {sheet_name}")
-    credentials = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE, scopes=SCOPES
-    )
-
-    service = build("sheets", "v4", credentials=credentials)
-    service.spreadsheets().values().clear(
+    SHEET_SERVICE.values().clear(
         spreadsheetId=SPREADSHEET_ID,
         range=sheet_name + "!A1:Z",
         body={},
@@ -98,15 +83,9 @@ def clear_sheet(sheet_name: str) -> None:
 
 def write_to_spreadsheet(rows: list, sheet_name: str) -> None:
     """Writes entries to the Google Sheets API."""
-    credentials = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE, scopes=SCOPES
-    )
-
-    service = build("sheets", "v4", credentials=credentials)
-    sheet = service.spreadsheets()
     body = {"values": rows}
     print(f"Writing {body} rows to spreadsheet...")
-    sheet.values().update(
+    SHEET_SERVICE.values().update(
         spreadsheetId=SPREADSHEET_ID,
         range=sheet_name + "!A1",
         valueInputOption="RAW",

@@ -1,15 +1,10 @@
-from collections import defaultdict
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
+from datetime import datetime
+from google_service import CALENDAR_SERVICE
 
-SCOPES = [
-    "https://www.googleapis.com/auth/calendar",
-    "https://www.googleapis.com/auth/calendar.events",
-]
-SERVICE_ACCOUNT_FILE = "service_account.json"
+
 CALENDAR_ID = "12b4c1c05ddfa92da3773151b5a3d2712138c410162cf0dcab3b4d0f84ecfe67@group.calendar.google.com"
+
 
 def get_date(data: dict, key: str) -> datetime:
     date_dict = data.get(key, {})
@@ -44,8 +39,12 @@ class CalendarEvent:
             attendees=data.get("attendees", []),
             location=data.get("location", ""),
             html_link=data.get("htmlLink", ""),
-            created=datetime.fromisoformat(data.get("created", "").replace("Z", "+00:00")),
-            updated=datetime.fromisoformat(data.get("updated", "").replace("Z", "+00:00")),
+            created=datetime.fromisoformat(
+                data.get("created", "").replace("Z", "+00:00")
+            ),
+            updated=datetime.fromisoformat(
+                data.get("updated", "").replace("Z", "+00:00")
+            ),
             duration_hours=(end - start).total_seconds() / 3600,
         )
 
@@ -58,14 +57,11 @@ class CalendarEvent:
         ]
 
 
-def get_calendar_events(calendar_id: str, time_min: str, time_max: str) -> list[CalendarEvent]:
-    credentials = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE, scopes=SCOPES
-    )
-
-    service = build("calendar", "v3", credentials=credentials)
+def get_calendar_events(
+    calendar_id: str, time_min: str, time_max: str
+) -> list[CalendarEvent]:
     events_result = (
-        service.events()
+        CALENDAR_SERVICE.events()
         .list(
             calendarId=calendar_id,
             timeMin=time_min,
