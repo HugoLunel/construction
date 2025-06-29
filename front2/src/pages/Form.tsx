@@ -108,9 +108,6 @@ const Form: React.FC = () => {
         alert("Form submitted!");
     };
 
-    // Only show the rest of the form if both dates are selected
-    const showFormFields = !!(startDate && endDate);
-
     return (
         <form
             onSubmit={handleSubmit}
@@ -143,143 +140,135 @@ const Form: React.FC = () => {
                 {submitted && (!startDate || !endDate) && (
                     <div className="text-red-500 text-xs pt-1 px-4">Both start and end dates are required</div>
                 )}
-
-                {/* Only show the rest if dates are picked */}
-                {showFormFields && (
-                    <>
-                        <div className="flex items-center bg-slate-50 p-4 pb-2 justify-between">
-                            <div
-                                className="text-[#0d141c] flex size-12 shrink-0 items-center"
-                                data-icon="X"
-                                data-size="24px"
-                                data-weight="regular"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="24px"
-                                    height="24px"
-                                    fill="currentColor"
-                                    viewBox="0 0 256 256"
-                                >
-                                    <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" />
-                                </svg>
-                            </div>
-                            <h2 className="text-[#0d141c] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">
-                                Submit Form
-                            </h2>
-                        </div>
-                        <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-                            <label className="flex flex-col min-w-40 flex-1">
-                                <select
-                                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border-none bg-[#e7edf4] focus:border-none h-14 bg-[image:var(--select-button-svg)] placeholder:text-[#49739c] p-4 text-base font-normal leading-normal"
-                                    value={selectedJob}
-                                    onChange={e => setSelectedJob(e.target.value)}
-                                    required
-                                >
-                                    <option value="" disabled>
-                                        Select Job
-                                    </option>
-                                    {jobs.map((job) => (
-                                        <option key={job.id} value={job.id}>
-                                            {job.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                {submitted && !selectedJob && (
-                                    <span className="text-red-500 text-xs pt-1">Job is required</span>
-                                )}
-                            </label>
-                        </div>
-                        <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-                            <label className="flex flex-col min-w-40 flex-1">
-                                <p className="text-[#0d141c] text-base font-medium leading-normal pb-2">
-                                    Start Time
-                                </p>
-                                <input
-                                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border-none bg-[#e7edf4] focus:border-none h-14 placeholder:text-[#49739c] p-4 text-base font-normal leading-normal"
-                                    value={start}
-                                    onChange={e => {
-                                        setStart(e.target.value);
-                                        setTouched(t => ({ ...t, start: true }));
-                                    }}
-                                    disabled={!selectedJob}
-                                    placeholder="Start Time"
-                                />
-                                {startChanged && (
-                                    <span className="text-yellow-600 text-xs pt-1">
-                                        Original: {autofilled.start} &nbsp;|&nbsp; Diff: {getTimeDiff(autofilled.start, start)}. Please justify the change in the section below.
-                                    </span>
-                                )}
-                            </label>
-                        </div>
-                        <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-                            <label className="flex flex-col min-w-40 flex-1">
-                                <p className="text-[#0d141c] text-base font-medium leading-normal pb-2">
-                                    End Time
-                                </p>
-                                <input
-                                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border-none bg-[#e7edf4] focus:border-none h-14 placeholder:text-[#49739c] p-4 text-base font-normal leading-normal"
-                                    value={end}
-                                    onChange={e => {
-                                        setEnd(e.target.value);
-                                        setTouched(t => ({ ...t, end: true }));
-                                    }}
-                                    disabled={!selectedJob}
-                                    placeholder="End Time"
-                                />
-                                {endChanged && (
-                                    <span className="text-yellow-600 text-xs pt-1">
-                                        Original: {autofilled.end} &nbsp;|&nbsp; Diff: {getTimeDiff(autofilled.end, end)}
-                                    </span>
-                                )}
-                            </label>
-                        </div>
-                        {reasonRequired && (
-                            <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-                                <label className="flex flex-col min-w-40 flex-1">
-                                    <textarea
-                                        placeholder="Reason for changing start/end time"
-                                        className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border-none bg-[#e7edf4] focus:border-none min-h-24 placeholder:text-[#49739c] p-4 text-base font-normal leading-normal"
-                                        value={reason}
-                                        onChange={e => setReason(e.target.value)}
-                                        disabled={!selectedJob}
-                                        required={reasonRequired}
-                                    ></textarea>
-                                    {submitted && reasonRequired && !reason.trim() && (
-                                        <span className="text-red-500 text-xs pt-1">Reason is required if you change start/end time</span>
-                                    )}
-                                </label>
-                            </div>
-                        )}
-                        <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-                            <label className="flex flex-col min-w-40 flex-1">
-                                <textarea
-                                    placeholder="Additional Notes (optional)"
-                                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border-none bg-[#e7edf4] focus:border-none min-h-36 placeholder:text-[#49739c] p-4 text-base font-normal leading-normal"
-                                    value={notes}
-                                    onChange={e => setNotes(e.target.value)}
-                                    disabled={!selectedJob}
-                                    required={false}
-                                ></textarea>
-                            </label>
-                        </div>
-                    </>
-                )}
-            </div>
-            {showFormFields && (
-                <div>
-                    <div className="flex px-4 py-3">
-                        <button
-                            className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 flex-1 bg-[#0c7ff2] text-slate-50 text-base font-bold leading-normal tracking-[0.015em]"
-                            type="submit"
-                            disabled={!selectedJob}
+                <div className="flex items-center bg-slate-50 p-4 pb-2 justify-between">
+                    <div
+                        className="text-[#0d141c] flex size-12 shrink-0 items-center"
+                        data-icon="X"
+                        data-size="24px"
+                        data-weight="regular"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24px"
+                            height="24px"
+                            fill="currentColor"
+                            viewBox="0 0 256 256"
                         >
-                            <span className="truncate">Submit</span>
-                        </button>
+                            <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" />
+                        </svg>
                     </div>
-                    <div className="h-5 bg-slate-50"></div>
+                    <h2 className="text-[#0d141c] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">
+                        Submit Form
+                    </h2>
                 </div>
-            )}
+                <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                    <label className="flex flex-col min-w-40 flex-1">
+                        <select
+                            className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border-none bg-[#e7edf4] focus:border-none h-14 bg-[image:var(--select-button-svg)] placeholder:text-[#49739c] p-4 text-base font-normal leading-normal"
+                            value={selectedJob}
+                            onChange={e => setSelectedJob(e.target.value)}
+                            required
+                        >
+                            <option value="" disabled>
+                                Select Job
+                            </option>
+                            {jobs.map((job) => (
+                                <option key={job.id} value={job.id}>
+                                    {job.name}
+                                </option>
+                            ))}
+                        </select>
+                        {submitted && !selectedJob && (
+                            <span className="text-red-500 text-xs pt-1">Job is required</span>
+                        )}
+                    </label>
+                </div>
+                <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                    <label className="flex flex-col min-w-40 flex-1">
+                        <p className="text-[#0d141c] text-base font-medium leading-normal pb-2">
+                            Start Time
+                        </p>
+                        <input
+                            className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border-none bg-[#e7edf4] focus:border-none h-14 placeholder:text-[#49739c] p-4 text-base font-normal leading-normal"
+                            value={start}
+                            onChange={e => {
+                                setStart(e.target.value);
+                                setTouched(t => ({ ...t, start: true }));
+                            }}
+                            disabled={!selectedJob}
+                            placeholder="Start Time"
+                        />
+                        {startChanged && (
+                            <span className="text-yellow-600 text-xs pt-1">
+                                Original: {autofilled.start} &nbsp;|&nbsp; Diff: {getTimeDiff(autofilled.start, start)}. Please justify the change in the section below.
+                            </span>
+                        )}
+                    </label>
+                </div>
+                <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                    <label className="flex flex-col min-w-40 flex-1">
+                        <p className="text-[#0d141c] text-base font-medium leading-normal pb-2">
+                            End Time
+                        </p>
+                        <input
+                            className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border-none bg-[#e7edf4] focus:border-none h-14 placeholder:text-[#49739c] p-4 text-base font-normal leading-normal"
+                            value={end}
+                            onChange={e => {
+                                setEnd(e.target.value);
+                                setTouched(t => ({ ...t, end: true }));
+                            }}
+                            disabled={!selectedJob}
+                            placeholder="End Time"
+                        />
+                        {endChanged && (
+                            <span className="text-yellow-600 text-xs pt-1">
+                                Original: {autofilled.end} &nbsp;|&nbsp; Diff: {getTimeDiff(autofilled.end, end)}
+                            </span>
+                        )}
+                    </label>
+                </div>
+                {reasonRequired && (
+                    <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                        <label className="flex flex-col min-w-40 flex-1">
+                            <textarea
+                                placeholder="Reason for changing start/end time"
+                                className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border-none bg-[#e7edf4] focus:border-none min-h-24 placeholder:text-[#49739c] p-4 text-base font-normal leading-normal"
+                                value={reason}
+                                onChange={e => setReason(e.target.value)}
+                                disabled={!selectedJob}
+                                required={reasonRequired}
+                            ></textarea>
+                            {submitted && reasonRequired && !reason.trim() && (
+                                <span className="text-red-500 text-xs pt-1">Reason is required if you change start/end time</span>
+                            )}
+                        </label>
+                    </div>
+                )}
+                <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                    <label className="flex flex-col min-w-40 flex-1">
+                        <textarea
+                            placeholder="Additional Notes (optional)"
+                            className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141c] focus:outline-0 focus:ring-0 border-none bg-[#e7edf4] focus:border-none min-h-36 placeholder:text-[#49739c] p-4 text-base font-normal leading-normal"
+                            value={notes}
+                            onChange={e => setNotes(e.target.value)}
+                            disabled={!selectedJob}
+                            required={false}
+                        ></textarea>
+                    </label>
+                </div>
+            </div>
+            <div>
+                <div className="flex px-4 py-3">
+                    <button
+                        className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 flex-1 bg-[#0c7ff2] text-slate-50 text-base font-bold leading-normal tracking-[0.015em]"
+                        type="submit"
+                        disabled={!selectedJob}
+                    >
+                        <span className="truncate">Submit</span>
+                    </button>
+                </div>
+                <div className="h-5 bg-slate-50"></div>
+            </div>
         </form>
     );
 };
